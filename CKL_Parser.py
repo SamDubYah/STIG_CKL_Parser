@@ -9,7 +9,7 @@ import os
 #### CONTANT VARIABLES ####
 # List of variables to pull from VULN tags
 #   NOTE: Careful adding items, No checks for 'NONE' type returns
-VULN_DATA = ['Vuln_Name', 'Severity', 'Group_Title', 'Rule_ID', 'Rule_Ver',
+VULN_DATA = ['Vuln_Num', 'Severity', 'Group_Title', 'Rule_ID', 'Rule_Ver',
              'Rule_Title', 'Vuln_Discuss', 'Check_Content', 'Fix_Text',
              'STIGRef']
 
@@ -62,16 +62,9 @@ def get_vuln_data(tree_root):
     vuln_dict = {}
     for vuln in tree_root.findall('./STIGS/iSTIG/VULN'):
         # Pull Status, Finding_Details & Comments
-        status = vuln.find('STATUS').text
-        finding_details = vuln.find('FINDING_DETAILS').text
-        comments = vuln.find('COMMENTS').text
-
-        # Build out Vuln_Dict with all data
-        vuln_dict = {
-            "Status": status,
-            "Finding Details": finding_details,
-            "Comments": comments
-        }
+        vuln_dict["status"] = vuln.find('STATUS').text
+        vuln_dict["finding_details"] = vuln.find('FINDING_DETAILS').text
+        vuln_dict["comments"] = vuln.find('COMMENTS').text
 
         # Parse through all K,V paired STIG_DATA
         for vuln_data in vuln.findall('STIG_DATA'):
@@ -80,15 +73,15 @@ def get_vuln_data(tree_root):
                 vuln_attr = vuln_data.find('VULN_ATTRIBUTE').text
                 attr_data = vuln_data.find('ATTRIBUTE_DATA').text
 
-                # Add if key exists, else create key
-                if vuln_attr in vuln_dict.keys():
-                    print(vuln_attr)
-                    vuln_dict[vuln_attr] = vuln_dict[vuln_attr].append(attr_data)
+                # Adding k, v to dictionary, if exists then creat
+                if vuln_attr in vuln_dict:
+                    vuln_dict[vuln_attr] += attr_data
                 else:
                     vuln_dict[vuln_attr] = attr_data
 
 
-    print(vuln_dict.get('Rule_ID'))
+
+    print(vuln_dict.get('Vuln_Num'))
     return vuln_dict
 
 
